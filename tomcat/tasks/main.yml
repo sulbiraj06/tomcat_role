@@ -43,7 +43,7 @@
 - name: copy artifacts to document root
   copy:
      src: /etc/ansible/sample.war
-     dest: /opt/apache-tomcat-9.0.69-windows-x64/webapps/sample.war
+     dest: /opt/apache-tomcat-9.0.69-windows-x64/apache-tomcat-9.0.69/webapps/sample.war
   tags: copy
 #- name: Stop Tomcat
 #  command: nohup /opt/apache-tomcat-8.5.40/bin/shutdown.sh
