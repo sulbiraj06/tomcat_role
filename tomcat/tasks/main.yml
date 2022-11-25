@@ -1,0 +1,53 @@
+---
+# tasks file for tomcat
+- name: Download tomcat package
+  get_url:
+    url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.69/bin/apache-tomcat-9.0.69-windows-x64.zip"
+    dest: /tmp/
+  tags: download
+
+- name: Install java package
+  yum:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - java-1.8.0-openjdk
+  tags: javainstall
+
+- name: Extract Tomcat archive
+  command: unzip /tmp/apache-tomcat-9.0.69-windows-x64.zip -d /opt/apache-tomcat-9.0.69-windows-x64
+  args:
+     chdir: /tmp/
+  tags: extract
+  
+- name: Ansible template with_items example.
+  template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: 0777
+        backup: yes
+        owner: root
+        group: root
+  with_items:
+        - {src: '/etc/ansible/tomcat/templates/context.xml', dest: '/opt/apache-tomcat-9.0.69-windows-x64/apache-tomcat-9.0.69/webapps/manager/META-INF/'}
+        - {src: '/etc/ansible/tomcat/templates/tomcat-users.xml', dest: '/opt/apache-tomcat-9.0.69-windows-x64/apache-tomcat-9.0.69/conf/'}
+  tags: templates
+  
+- name: Change file ownership, group and permissions
+  file:
+    path: /opt/apache-tomcat-9.0.69-windows-x64/apache-tomcat-9.0.69/bin
+    recurse: yes
+    mode: '0777'
+
+- name: copy artifacts to document root
+  copy:
+     src: /etc/ansible/sample.war
+     dest: /opt/apache-tomcat-9.0.69-windows-x64/webapps/sample.war
+  tags: copy
+#- name: Stop Tomcat
+#  command: nohup /opt/apache-tomcat-8.5.40/bin/shutdown.sh
+
+- name: Start Tomcat
+  command: nohup /opt/apache-tomcat-9.0.69-windows-x64/apache-tomcat-9.0.69/bin/startup.sh
+  tags: start
